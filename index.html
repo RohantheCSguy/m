@@ -59,6 +59,19 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
  <div class="url-hint" id="urlStatus">Your playlist URL is fetched by the app's Vercel API and parsed in your browser.</div>
 </section>
 
+
+<section class="panel">
+ <strong>Connect Xtream Codes</strong>
+ <div class="muted" style="margin-top:5px">Import your authorised IPTV account directly and convert its live channel list into an M3U playlist.</div>
+ <div class="url-import">
+  <input id="xtHost" type="url" placeholder="Server URL (e.g. http://example.com:8080)" autocomplete="url">
+  <input id="xtUser" type="text" placeholder="Username" autocomplete="username">
+  <input id="xtPass" type="password" placeholder="Password" autocomplete="current-password">
+  <button class="btn" id="xtLoad">Connect &amp; import</button>
+ </div>
+ <div class="url-hint" id="xtStatus">Credentials are sent to this app's Vercel API only to request your provider's M3U playlist. They are not saved.</div>
+</section>
+
 <div class="stats">
  <div class="stat"><b id="total">0</b><span class="muted">Total channels</span></div>
  <div class="stat"><b class="green" id="working">0</b><span class="muted">Working / reachable</span></div>
@@ -68,6 +81,7 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
 <section class="panel">
  <div class="controls">
   <button class="btn" id="check" disabled>Check all links</button>
+  <button class="btn secondary" id="exportAll" disabled>Export all M3U</button>
   <button class="btn secondary" id="exportWorking" disabled>Export working M3U</button>
   <button class="btn secondary" id="exportFav" disabled>Export favourites M3U</button>
   <button class="btn secondary" id="exportCsv" disabled>Export CSV</button>
@@ -213,6 +227,7 @@ function loadPlaylistContent(text, displayName) {
  $('check').disabled = false;
  $('search').disabled = false;
  $('exportWorking').disabled = false;
+ $('exportAll').disabled = false;
  $('exportCsv').disabled = false;
  $('progressText').textContent = 'Playlist loaded. Click any channel card to add it to favourites, or check the links.';
  render();
@@ -269,6 +284,28 @@ $('loadHindi').addEventListener('click', () => {
  importPlaylistFromURL();
 });
 
+
+async function importXtream() {
+ const host=$('xtHost').value.trim();
+ const username=$('xtUser').value.trim();
+ const password=$('xtPass').value;
+ const button=$('xtLoad');
+ if(!host || !username || !password) { $('xtStatus').textContent='Enter the server URL, username and password.'; return; }
+ button.disabled=true; $('xtStatus').textContent='Connecting to your IPTV provider…';
+ try {
+  const response=await fetch('/api/xtream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({host,username,password})});
+  const data=await response.json();
+  if(!response.ok) throw new Error(data.error||'Xtream import failed (HTTP '+response.status+').');
+  if(!data.content) throw new Error('The provider returned an empty playlist.');
+  loadPlaylistContent(data.content,'Xtream Codes · '+(data.count||'')+' entries');
+  $('xtStatus').textContent='Imported '+channels.length+' live channels. Use “Export all M3U” to save the converted playlist.';
+  $('xtPass').value='';
+ } catch(err) { console.error('Xtream import error:',err); $('xtStatus').textContent='Could not connect: '+err.message; }
+ finally { button.disabled=false; }
+}
+$('xtLoad').addEventListener('click',importXtream);
+['xtHost','xtUser','xtPass'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')importXtream();}));
+
 $('file').addEventListener('change', async e=>{
  const f=e.target.files && e.target.files[0];
  if(!f) return;
@@ -315,6 +352,7 @@ $('check').onclick=async()=>{
 };
 function makeM3U(items){return '#EXTM3U\n'+items.map(c=>[...c.meta,c.url].join('\n')).join('\n')+'\n';}
 function download(name,content,type='audio/x-mpegurl'){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+$('exportAll').onclick=()=>download('xtream-converted.m3u',makeM3U(channels));
 $('exportFav').onclick=()=>download('favourites.m3u',makeM3U(channels.filter(c=>favouriteSet.has(c.id))));
 $('exportWorking').onclick=()=>download('working-streams.m3u',makeM3U(channels.filter(c=>c.status==='working')));
 $('exportCsv').onclick=()=>{const rows=[['Channel','Status','Detail','URL'],...channels.map(c=>[c.name,c.status,c.detail,c.url])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');download('m3u-channels.csv',csv,'text/csv');};
