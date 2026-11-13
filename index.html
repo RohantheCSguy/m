@@ -285,23 +285,59 @@ $('loadHindi').addEventListener('click', () => {
 });
 
 
+async function xtreamRequest(host,username,password,action,categoryId) {
+ const response=await fetch('/api/xtream',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({host,username,password,action,category_id:categoryId})
+ });
+ const data=await response.json();
+ if(!response.ok) throw new Error(data.error||'Xtream API request failed (HTTP '+response.status+').');
+ return data;
+}
 async function importXtream() {
  const host=$('xtHost').value.trim();
  const username=$('xtUser').value.trim();
  const password=$('xtPass').value;
  const button=$('xtLoad');
- if(!host || !username || !password) { $('xtStatus').textContent='Enter the server URL, username and password.'; return; }
- button.disabled=true; $('xtStatus').textContent='Connecting to your IPTV provider…';
+ if(!host || !username || !password) {
+  $('xtStatus').textContent='Enter the server URL, username and password.';
+  return;
+ }
+ button.disabled=true;
  try {
-  const response=await fetch('/api/xtream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({host,username,password})});
-  const data=await response.json();
-  if(!response.ok) throw new Error(data.error||'Xtream import failed (HTTP '+response.status+').');
-  if(!data.content) throw new Error('The provider returned an empty playlist.');
-  loadPlaylistContent(data.content,'Xtream Codes · '+(data.count||'')+' entries');
-  $('xtStatus').textContent='Imported '+channels.length+' live channels. Use “Export all M3U” to save the converted playlist.';
-  $('xtPass').value='';
- } catch(err) { console.error('Xtream import error:',err); $('xtStatus').textContent='Could not connect: '+err.message; }
- finally { button.disabled=false; }
+  $('xtStatus').textContent='Connecting to Xtream API…';
+  const categoryData=await xtreamRequest(host,username,password,'categories');
+  const categories=Array.isArray(categoryData.categories)?categoryData.categories:[];
+  if(!categories.length) throw new Error('The provider returned no live-TV categories. Check that your account includes live TV.');
+  let entries=[];
+  for(let i=0;i<categories.length;i++){
+   const cat=categories[i];
+   $('xtStatus').textContent='Importing category '+(i+1)+' of '+categories.length+': '+(cat.category_name||'Other')+'…';
+   const streamData=await xtreamRequest(host,username,password,'streams',cat.category_id);
+   const streams=Array.isArray(streamData.streams)?streamData.streams:[];
+   for(const s of streams){
+    if(!s || s.stream_id==null) continue;
+    const name=String(s.name||('Channel '+s.stream_id)).replace(/[\r\n,]/g,' ').trim();
+    const group=String(cat.category_name||'Uncategorised').replace(/["\r\n]/g,' ').trim();
+    const logo=String(s.stream_icon||'').replace(/["\r\n]/g,'');
+    const epg=String(s.epg_channel_id||'').replace(/["\r\n]/g,'');
+    const ext=String(s.container_extension||'ts').replace(/[^a-z0-9]/gi,'')||'ts';
+    const streamUrl=host.replace(/\/+$/,'')+'/live/'+encodeURIComponent(username)+'/'+encodeURIComponent(password)+'/'+encodeURIComponent(s.stream_id)+'.'+ext;
+    entries.push('#EXTINF:-1 tvg-id="'+epg+'" tvg-name="'+name.replace(/"/g,'')+'" tvg-logo="'+logo+'" group-title="'+group+'",'+name+'\n'+streamUrl);
+   }
+  }
+  if(!entries.length) throw new Error('No live channels were returned for the available categories.');
+  const playlist='#EXTM3U\n'+entries.join('\n')+'\n';
+  loadPlaylistContent(playlist,'Xtream Codes · '+entries.length+' live channels');
+  $('xtStatus').textContent='Imported '+entries.length+' live channels across '+categories.length+' categories. Export all M3U to save the playlist.';
+  $('playlistUrl').value='';
+ } catch(err) {
+  console.error('Xtream import error:',err);
+  $('xtStatus').textContent='Could not connect: '+err.message;
+ } finally {
+  button.disabled=false;
+ }
 }
 $('xtLoad').addEventListener('click',importXtream);
 ['xtHost','xtUser','xtPass'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')importXtream();}));
