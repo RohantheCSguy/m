@@ -6,7 +6,8 @@ import ipaddress
 import json
 import socket
 
-MAX_BYTES = 8 * 1024 * 1024
+# Keep each response small enough for serverless function response limits.
+MAX_JSON_BYTES = 4 * 1024 * 1024
 
 
 def validate_public_url(url):
@@ -50,8 +51,35 @@ class SameHostRedirectHandler(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         parsed = validate_public_url(newurl)
         if parsed.hostname.lower() != self.original_host:
-            raise ValueError("The provider redirected to a different host; redirect blocked to protect credentials.")
+            raise ValueError("The provider redirected to a different host; redirect blocked.")
         return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def fetch_json(base, parsed, username, password, action, category_id=None):
+    params = {"username": username, "password": password, "action": action}
+    if category_id is not None:
+        params["category_id"] = str(category_id)
+    url = base + "/player_api.php?" + urlencode(params)
+    request = Request(url, headers={
+        "User-Agent": "Mozilla/5.0 (compatible; M3U-Manager/1.1)",
+        "Accept": "application/json, text/plain, */*",
+    })
+    opener = build_opener(SameHostRedirectHandler(parsed.hostname))
+    with opener.open(request, timeout=25) as response:
+        raw = response.read(MAX_JSON_BYTES + 1)
+    if len(raw) > MAX_JSON_BYTES:
+        raise ValueError("This category's response exceeds 4 MB. Try importing smaller categories separately.")
+    try:
+        result = json.loads(raw.decode("utf-8-sig"))
+    except Exception:
+        raise ValueError("The provider did not return valid Xtream API JSON. Verify the host and account.")
+    if isinstance(result, dict) and result.get("user_info", {}).get("auth") == 0:
+        raise ValueError("Xtream login rejected. Check username, password and subscription.")
+    if isinstance(result, dict) and result.get("error"):
+        raise ValueError(str(result["error"])[:200])
+    if not isinstance(result, list):
+        raise ValueError("Unexpected Xtream API response for " + action + ".")
+    return result
 
 
 class handler(BaseHTTPRequestHandler):
@@ -67,36 +95,25 @@ class handler(BaseHTTPRequestHandler):
             host = payload.get("host", "")
             username = payload.get("username", "")
             password = payload.get("password", "")
+            action = payload.get("action", "")
+            category_id = payload.get("category_id")
             if not all(isinstance(v, str) and v.strip() for v in (host, username, password)):
                 raise ValueError("Server URL, username and password are required.")
             if len(host) > 2048 or len(username) > 512 or len(password) > 1024:
                 raise ValueError("One or more fields are too long.")
+            if action not in ("categories", "streams"):
+                raise ValueError("Unsupported Xtream action.")
             parsed = validate_public_url(host.strip().rstrip("/"))
             base = f"{parsed.scheme}://{parsed.netloc}"
-            query = urlencode({"username": username, "password": password, "type": "m3u_plus", "output": "ts"})
-            playlist_url = base + "/get.php?" + query
-            request = Request(playlist_url, headers={
-                "User-Agent": "Mozilla/5.0 (compatible; M3U-Manager/1.0)",
-                "Accept": "audio/x-mpegurl, application/vnd.apple.mpegurl, text/plain, */*",
-            })
-            opener = build_opener(SameHostRedirectHandler(parsed.hostname))
-            with opener.open(request, timeout=25) as response:
-                content_type = response.headers.get("Content-Type", "")
-                declared_length = response.headers.get("Content-Length")
-                if declared_length and int(declared_length) > MAX_BYTES:
-                    raise ValueError("Playlist is too large (maximum 8 MB).")
-                content_bytes = response.read(MAX_BYTES + 1)
-            if len(content_bytes) > MAX_BYTES:
-                raise ValueError("Playlist is too large (maximum 8 MB).")
-            content = content_bytes.decode("utf-8-sig", errors="replace")
-            if not content.strip():
-                raise ValueError("The provider returned an empty playlist. Check the credentials and subscription.")
-            if not content.lstrip().startswith("#EXTM3U"):
-                if "text/html" in content_type.lower() or "<html" in content[:1000].lower():
-                    raise ValueError("The provider returned a webpage, not an M3U playlist. Verify the server URL and credentials.")
-                raise ValueError("The provider response is not a valid M3U playlist.")
-            count = sum(1 for line in content.splitlines() if line.strip() and not line.lstrip().startswith("#"))
-            body = json.dumps({"content": content, "count": count}).encode("utf-8")
+            if action == "categories":
+                result = fetch_json(base, parsed, username, password, "get_live_categories")
+                body_obj = {"categories": result}
+            else:
+                if category_id is None or len(str(category_id)) > 128:
+                    raise ValueError("A valid category ID is required.")
+                result = fetch_json(base, parsed, username, password, "get_live_streams", category_id)
+                body_obj = {"streams": result}
+            body = json.dumps(body_obj, separators=(",", ":")).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Cache-Control", "no-store")
@@ -104,7 +121,7 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
         except HTTPError as exc:
-            self._send_error(f"Provider returned HTTP {exc.code}. Check the server URL and account status.")
+            self._send_error(f"Provider returned HTTP {exc.code}. Check the server URL and account.")
         except (URLError, socket.timeout, TimeoutError) as exc:
             self._send_error("Could not reach the IPTV server: " + str(getattr(exc, "reason", exc))[:180])
         except Exception as exc:
@@ -120,9 +137,9 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        body = json.dumps({"ok": True, "service": "Xtream Codes to M3U importer"}).encode("utf-8")
+        body = json.dumps({"ok": True, "service": "Xtream category importer"}).encode("utf-8")
         self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Type", "application/json")
         self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
