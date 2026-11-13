@@ -6,6 +6,9 @@
     },
     "api/import.py": {
       "maxDuration": 60
+    },
+    "api/xtream.py": {
+      "maxDuration": 60
     }
   }
 }
