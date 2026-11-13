@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M3U Manager</title>
+<style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#e9edf5;background:#10141c}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:1120px;margin:auto;padding:28px 20px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+h1{font-size:25px;margin:0} .muted{color:#9aa6b8;font-size:13px}
+.panel{background:#191f2b;border:1px solid #2b3444;border-radius:14px;padding:18px;margin-bottom:16px}
+.upload{border:1px dashed #53627a;text-align:center;padding:30px;cursor:pointer}
+input[type=file]{display:none}.btn{border:0;border-radius:9px;padding:10px 14px;background:#6b8cff;color:#fff;font-weight:650;cursor:pointer}
+.btn.secondary{background:#2b3547}.btn:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.stat{background:#191f2b;border:1px solid #2b3444;border-radius:12px;padding:14px}
+.stat b{display:block;font-size:24px;margin-bottom:3px}.green{color:#62d6a1}.red{color:#ff7777}.yellow{color:#f3c76a}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:10px;min-width:220px;flex:1}
+.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}.tab{padding:8px 12px;border-radius:20px;background:#252e3d;color:#c8d2e1;cursor:pointer;font-size:13px;border:0}.tab.active{background:#6b8cff;color:white}
+.channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:10px}
+.channel-card{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:14px;background:#111722;border:1px solid #303b4e;border-radius:12px;color:#e9edf5;cursor:pointer;transition:border-color .15s,background .15s}
+.channel-card:hover{border-color:#829cff;background:#1d2635}
+.channel-card.selected{border-color:#e6b84f;background:#2b261a}
+.channel-card .channel-info{min-width:0;flex:1}
+.name{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.detail{color:#9aa6b8;font-size:11px;margin-top:4px;overflow-wrap:anywhere}
+.cart-icon{width:34px;height:34px;border-radius:10px;background:#263247;display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.channel-card.selected .cart-icon{background:#624c1c;color:#ffd36c}
+.status{font-size:12px;font-weight:650}.status.working{color:#62d6a1}.status.failed{color:#ff7777}.status.uncertain{color:#f3c76a}
+.fav-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.fav-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#2a261c;border:1px solid #66532c;border-radius:9px;font-size:12px}
+.fav-chip button{background:none;border:0;color:#ffd36c;cursor:pointer;font-size:16px}
+.status{font-size:12px;font-weight:650}.status.working{color:#62d6a1}.status.failed{color:#ff7777}.status.uncertain{color:#f3c76a}.empty{text-align:center;color:#9aa6b8;padding:35px}
+.progress{height:5px;background:#30394a;border-radius:9px;overflow:hidden;margin-top:12px}.bar{height:100%;width:0;background:#6b8cff;transition:width .2s}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}th:nth-child(3),td:nth-child(3){display:none}.wrap{padding:18px 12px}}
+</style></head>
+<body><div class="wrap">
+<header><div><h1>♡ M3U Manager</h1><div class="muted">Check streams · organise favourites · export playlists</div></div><span class="muted">LOCAL ONLY</span></header>
+<section class="panel upload" id="drop">
+  <div style="font-size:30px">⇧</div><h3 style="margin:8px 0">Upload an M3U playlist</h3>
+  <div class="muted">Choose a .m3u or .m3u8 file from your computer</div><br>
+  <label class="btn" for="file">Choose playlist</label><input id="file" type="file" accept=".m3u,.m3u8,text/plain">
+  <div class="muted" id="filename" style="margin-top:12px">No playlist loaded</div>
+</section>
+<div class="stats">
+ <div class="stat"><b id="total">0</b><span class="muted">Total channels</span></div>
+ <div class="stat"><b class="green" id="working">0</b><span class="muted">Working / reachable</span></div>
+ <div class="stat"><b class="red" id="failed">0</b><span class="muted">Failed</span></div>
+ <div class="stat"><b class="yellow" id="favs">0</b><span class="muted">Favourites</span></div>
+</div>
+<section class="panel">
+ <div class="controls">
+  <button class="btn" id="check" disabled>Check all links</button>
+  <button class="btn secondary" id="exportWorking" disabled>Export working M3U</button>
+  <button class="btn secondary" id="exportFav" disabled>Export favourites M3U</button>
+  <button class="btn secondary" id="exportCsv" disabled>Export CSV</button>
+ </div>
+ <div class="progress"><div class="bar" id="bar"></div></div>
+ <div class="muted" id="progressText" style="margin-top:8px">Upload a playlist to begin.</div>
+</section>
+<section class="panel">
+ <div class="controls"><input id="search" type="search" placeholder="Search channel name or URL..." disabled></div>
+ <div class="tabs">
+  <button class="tab active" data-filter="all">All</button><button class="tab" data-filter="working">Working</button>
+  <button class="tab" data-filter="failed">Failed</button><button class="tab" data-filter="uncertain">Uncertain</button>
+  <button class="tab" data-filter="favourites">Favourites ★</button>
+ </div>
+ <div class="muted" style="margin:0 0 12px">Click any channel card to add or remove it from your favourites.</div>
+ <div class="channel-grid" id="rows"><div class="empty">Upload an M3U file to see channels.</div></div>
+</section>
+<section class="panel">
+ <div class="controls" style="justify-content:space-between">
+  <div><strong>★ Your favourites</strong><div class="muted">Selected channels ready to export</div></div>
+  <span class="muted" id="favCountLabel">0 selected</span>
+ </div>
+ <div id="favList" class="fav-list"><div class="muted">Click channels above to add them here.</div></div>
+</section>
+<div class="muted" style="text-align:center;line-height:1.6">Link checks test server reachability, not guaranteed playback. Some providers block automated requests or require a region, token or browser session. Favourites are saved in this browser on this computer.</div>
+</div>
+<script>
+let channels=[], filter='all', favouriteSet=new Set();
+try{favouriteSet=new Set(JSON.parse(localStorage.getItem('m3u-manager-favourites')||'[]'));}catch(e){favouriteSet=new Set();}
+const $=id=>document.getElementById(id);
+function parseM3U(text){
+ const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/), out=[]; let pending=[];
+ for(const raw of lines){const line=raw.trim(); if(!line)continue;
+  if(line.startsWith('#')){pending.push(raw);continue;}
+  if(/^(https?|rtmp|rtsp|udp|rtp|mms|mmsh|mmst|file):\/\//i.test(line)){
+   const info=pending.find(x=>x.trim().startsWith('#EXTINF'))||'';
+   let name='Unknown channel'; const comma=info.indexOf(',');
+   if(comma>=0) name=info.slice(comma+1).trim()||name;
+   const tvg=info.match(/tvg-name="([^"]+)"/i); if(name==='Unknown channel'&&tvg)name=tvg[1];
+   const id=out.length; out.push({id,name,url:line,meta:pending.slice(),status:'unchecked',detail:'Not checked'});
+   pending=[];
+  }
+ }
+ return out;
+}
+function counts(){ $('total').textContent=channels.length;$('working').textContent=channels.filter(c=>c.status==='working').length;$('failed').textContent=channels.filter(c=>c.status==='failed').length;$('favs').textContent=channels.filter(c=>favouriteSet.has(c.id)).length;}
+function render(){
+ counts(); const q=$('search').value.toLowerCase();
+ const shown=channels.filter(c=>(filter==='all'||(filter==='favourites'?favouriteSet.has(c.id):c.status===filter))&&(c.name+' '+c.url).toLowerCase().includes(q));
+ $('rows').innerHTML=shown.length?shown.map(c=>`<button class="channel-card ${favouriteSet.has(c.id)?'selected':''}" data-channel="${c.id}" aria-pressed="${favouriteSet.has(c.id)}">
+   <span class="cart-icon">${favouriteSet.has(c.id)?'✓':'＋'}</span>
+   <span class="channel-info"><span class="name">${esc(c.name)}</span><span class="detail status ${c.status}">${c.status==='unchecked'?'Not checked':c.status} · ${esc(c.detail)}</span></span>
+   <span style="color:${favouriteSet.has(c.id)?'#ffd36c':'#9aa6b8'};font-size:12px">${favouriteSet.has(c.id)?'Added':'Add'}</span>
+  </button>`).join(''):'<div class="empty">No channels match this filter.</div>';
+ document.querySelectorAll('[data-channel]').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.channel);favouriteSet.has(id)?favouriteSet.delete(id):favouriteSet.add(id);saveFavourites();render();});
+ const favs=channels.filter(c=>favouriteSet.has(c.id));
+ $('favCountLabel').textContent=favs.length+' selected';
+ $('favList').innerHTML=favs.length?favs.map(c=>`<span class="fav-chip">${esc(c.name)} <button data-remove="${c.id}" title="Remove favourite">×</button></span>`).join(''):'<div class="muted">Click channels above to add them here.</div>';
+ document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{favouriteSet.delete(Number(b.dataset.remove));saveFavourites();render();});
+ $('exportFav').disabled=!favs.length;
+}
+function saveFavourites(){try{localStorage.setItem('m3u-manager-favourites',JSON.stringify([...favouriteSet]));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+$('file').addEventListener('change', async e=>{
+ const f=e.target.files && e.target.files[0];
+ if(!f) return;
+ $('filename').textContent='Reading '+f.name+'…';
+ $('progressText').textContent='Importing playlist…';
+ try {
+  const text=await f.text();
+  if(!text.trim()) throw new Error('The selected file is empty.');
+  if(!text.replace(/^\uFEFF/,'').trimStart().startsWith('#EXTM3U')) throw new Error('This file does not begin with #EXTM3U. Please choose a valid M3U/M3U8 playlist.');
+  const parsed=parseM3U(text);
+  if(!parsed.length) throw new Error('The playlist header was found, but no supported stream URLs were detected.');
+  channels=parsed;
+  favouriteSet=new Set([...favouriteSet].filter(id=>id<channels.length));
+  $('filename').textContent=f.name+' · '+channels.length+' channel entries';
+  $('check').disabled=false;$('search').disabled=false;
+  $('exportWorking').disabled=false;$('exportCsv').disabled=false;
+  $('progressText').textContent='Playlist loaded. Click any channel card to add it to favourites, or check the links.';
+  render();
+ } catch(err) {
+  channels=[]; render();
+  $('filename').textContent=f.name+' · Import failed';
+  $('progressText').textContent='Upload error: '+err.message;
+  $('check').disabled=true;$('search').disabled=true;
+  $('exportWorking').disabled=true;$('exportFav').disabled=true;$('exportCsv').disabled=true;
+ }
+});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelector('.tab.active').classList.remove('active');b.classList.add('active');filter=b.dataset.filter;render();});
+$('search').oninput=render;
+const drop=$('drop');
+['dragenter','dragover'].forEach(evt=>drop.addEventListener(evt,e=>{e.preventDefault();drop.style.borderColor='#829cff';}));
+['dragleave','drop'].forEach(evt=>drop.addEventListener(evt,e=>{e.preventDefault();drop.style.borderColor='#53627a';}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files && e.dataTransfer.files[0];if(f){$('file').files=e.dataTransfer.files;$('file').dispatchEvent(new Event('change'));}});
+$('check').onclick=async()=>{
+ $('check').disabled=true;let done=0;const urls=[...new Set(channels.map(c=>c.url))];$('progressText').textContent=`Checking ${urls.length} unique stream URLs…`;
+ // Send in batches to keep requests and memory bounded.
+ const results={};
+ for(let i=0;i<urls.length;i+=60){
+  const batch=urls.slice(i,i+60);
+  try{const r=await fetch('/api/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({urls:batch})});const data=await r.json();Object.assign(results,data);}
+  catch(e){batch.forEach(u=>results[u]={status:'uncertain',detail:'Checker request failed: '+e.message});}
+  done=Math.min(i+batch.length,urls.length);$('bar').style.width=(done/urls.length*100)+'%';$('progressText').textContent=`Checked ${done} of ${urls.length} unique URLs…`;
+ }
+ channels.forEach(c=>{let r=results[c.url]||{status:'uncertain',detail:'No result'};c.status=r.status;c.detail=r.detail;});
+ $('progressText').textContent='Check complete. Review uncertain results before exporting.';$('check').disabled=false;render();
+};
+function makeM3U(items){return '#EXTM3U\n'+items.map(c=>[...c.meta,c.url].join('\n')).join('\n')+'\n';}
+function download(name,content,type='audio/x-mpegurl'){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+$('exportFav').onclick=()=>download('favourites.m3u',makeM3U(channels.filter(c=>favouriteSet.has(c.id))));
+$('exportWorking').onclick=()=>download('working-streams.m3u',makeM3U(channels.filter(c=>c.status==='working')));
+$('exportCsv').onclick=()=>{const rows=[['Channel','Status','Detail','URL'],...channels.map(c=>[c.name,c.status,c.detail,c.url])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');download('m3u-channels.csv',csv,'text/csv');};
+</script></body></html>
