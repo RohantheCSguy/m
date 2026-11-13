@@ -10,6 +10,10 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 h1{font-size:25px;margin:0} .muted{color:#9aa6b8;font-size:13px}
 .panel{background:#191f2b;border:1px solid #2b3444;border-radius:14px;padding:18px;margin-bottom:16px}
 .upload{border:1px dashed #53627a;text-align:center;padding:30px;cursor:pointer}
+.url-import{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.url-import input{flex:1;min-width:220px;background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:11px}
+.url-import input:focus{outline:1px solid #829cff}
+.url-hint{margin-top:8px;color:#9aa6b8;font-size:12px}
 input[type=file]{display:none}.btn{border:0;border-radius:9px;padding:10px 14px;background:#6b8cff;color:#fff;font-weight:650;cursor:pointer}
 .btn.secondary{background:#2b3547}.btn:disabled{opacity:.45;cursor:not-allowed}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
@@ -43,6 +47,18 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
   <label class="btn" for="file">Choose playlist</label><input id="file" type="file" accept=".m3u,.m3u8,text/plain">
   <div class="muted" id="filename" style="margin-top:12px">No playlist loaded</div>
 </section>
+
+<section class="panel">
+ <strong>Import playlist from URL</strong>
+ <div class="muted" style="margin-top:5px">Fetch an online M3U/M3U8 playlist directly — no PowerShell or manual download needed.</div>
+ <div class="url-import">
+  <input id="playlistUrl" type="url" placeholder="https://example.com/playlist.m3u" autocomplete="url">
+  <button class="btn" id="loadUrl">Load URL</button>
+  <button class="btn secondary" id="loadHindi">Load Hindi IPTV</button>
+ </div>
+ <div class="url-hint" id="urlStatus">Your playlist URL is fetched by the app's Vercel API and parsed in your browser.</div>
+</section>
+
 <div class="stats">
  <div class="stat"><b id="total">0</b><span class="muted">Total channels</span></div>
  <div class="stat"><b class="green" id="working">0</b><span class="muted">Working / reachable</span></div>
@@ -76,7 +92,7 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
  </div>
  <div id="favList" class="fav-list"><div class="muted">Click channels above to add them here.</div></div>
 </section>
-<div class="muted" style="text-align:center;line-height:1.6">Link checks test server reachability, not guaranteed playback. Some providers block automated requests or require a region, token or browser session. Favourites are saved in this browser on this computer.</div>
+<div class="muted" style="text-align:center;line-height:1.6">Link checks test server reachability, not guaranteed playback. Some providers block automated requests or require a region, token or browser session. Favourites are saved in this browser on this device.</div>
 </div>
 <script>
 let channels=[], filter='all', favouriteSet=new Set();
@@ -115,6 +131,75 @@ function render(){
 }
 function saveFavourites(){try{localStorage.setItem('m3u-manager-favourites',JSON.stringify([...favouriteSet]));}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function loadPlaylistContent(text, displayName) {
+ if(!text || !text.trim()) throw new Error('The playlist is empty.');
+ const normalized = text.replace(/^\uFEFF/, '').trimStart();
+ if(!normalized.startsWith('#EXTM3U')) throw new Error('The response is not a valid M3U playlist (missing #EXTM3U header).');
+ const parsed = parseM3U(text);
+ if(!parsed.length) throw new Error('The playlist header was found, but no supported stream URLs were detected.');
+ channels = parsed;
+ favouriteSet = new Set([...favouriteSet].filter(id => id < channels.length));
+ $('filename').textContent = displayName + ' · ' + channels.length + ' channel entries';
+ $('check').disabled = false;
+ $('search').disabled = false;
+ $('exportWorking').disabled = false;
+ $('exportCsv').disabled = false;
+ $('progressText').textContent = 'Playlist loaded. Click any channel card to add it to favourites, or check the links.';
+ render();
+}
+
+async function importPlaylistFromURL() {
+ const input = $('playlistUrl');
+ const button = $('loadUrl');
+ const url = input.value.trim();
+
+ if(!url) {
+  $('urlStatus').textContent = 'Paste an M3U playlist URL first.';
+  input.focus();
+  return;
+ }
+
+ button.disabled = true;
+ $('loadHindi').disabled = true;
+ $('urlStatus').textContent = 'Fetching playlist…';
+ $('filename').textContent = 'Loading playlist from URL…';
+ $('progressText').textContent = 'Downloading playlist through Vercel…';
+
+ try {
+  const response = await fetch('/api/import', {
+   method: 'POST',
+   headers: {'Content-Type':'application/json'},
+   body: JSON.stringify({url})
+  });
+
+  const data = await response.json();
+
+  if(!response.ok) throw new Error(data.error || 'Import failed (HTTP ' + response.status + ').');
+  if(!data.content) throw new Error('The server returned an empty playlist.');
+
+  loadPlaylistContent(data.content, data.name || 'Remote playlist');
+  $('urlStatus').textContent = 'Successfully imported ' + channels.length + ' channels from the URL.';
+ } catch(error) {
+  console.error('URL import error:', error);
+  $('urlStatus').textContent = 'Could not import playlist: ' + error.message;
+  $('filename').textContent = 'URL import failed';
+  $('progressText').textContent = error.message;
+ } finally {
+  button.disabled = false;
+  $('loadHindi').disabled = false;
+ }
+}
+
+$('loadUrl').addEventListener('click', importPlaylistFromURL);
+$('playlistUrl').addEventListener('keydown', e => {
+ if(e.key === 'Enter') importPlaylistFromURL();
+});
+$('loadHindi').addEventListener('click', () => {
+ $('playlistUrl').value = 'https://iptv-org.github.io/iptv/languages/hin.m3u';
+ importPlaylistFromURL();
+});
+
 $('file').addEventListener('change', async e=>{
  const f=e.target.files && e.target.files[0];
  if(!f) return;
@@ -122,23 +207,21 @@ $('file').addEventListener('change', async e=>{
  $('progressText').textContent='Importing playlist…';
  try {
   const text=await f.text();
-  if(!text.trim()) throw new Error('The selected file is empty.');
-  if(!text.replace(/^\uFEFF/,'').trimStart().startsWith('#EXTM3U')) throw new Error('This file does not begin with #EXTM3U. Please choose a valid M3U/M3U8 playlist.');
-  const parsed=parseM3U(text);
-  if(!parsed.length) throw new Error('The playlist header was found, but no supported stream URLs were detected.');
-  channels=parsed;
-  favouriteSet=new Set([...favouriteSet].filter(id=>id<channels.length));
-  $('filename').textContent=f.name+' · '+channels.length+' channel entries';
-  $('check').disabled=false;$('search').disabled=false;
-  $('exportWorking').disabled=false;$('exportCsv').disabled=false;
-  $('progressText').textContent='Playlist loaded. Click any channel card to add it to favourites, or check the links.';
-  render();
+  loadPlaylistContent(text, f.name);
+  $('urlStatus').textContent = 'Local playlist loaded: ' + f.name;
  } catch(err) {
-  channels=[]; render();
+  console.error('M3U file import error:', err);
+  channels=[];
+  render();
   $('filename').textContent=f.name+' · Import failed';
   $('progressText').textContent='Upload error: '+err.message;
-  $('check').disabled=true;$('search').disabled=true;
-  $('exportWorking').disabled=true;$('exportFav').disabled=true;$('exportCsv').disabled=true;
+  $('check').disabled=true;
+  $('search').disabled=true;
+  $('exportWorking').disabled=true;
+  $('exportFav').disabled=true;
+  $('exportCsv').disabled=true;
+ } finally {
+  e.target.value='';
  }
 });
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelector('.tab.active').classList.remove('active');b.classList.add('active');filter=b.dataset.filter;render();});
