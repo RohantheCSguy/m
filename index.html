@@ -1,39 +1,27 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>M3U Manager</title>
 <style>
 :root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#e9edf5;background:#10141c}
-*{box-sizing:border-box}
-body{margin:0}
-.wrap{max-width:1120px;margin:auto;padding:28px 20px}
+*{box-sizing:border-box}body{margin:0}.wrap{max-width:1120px;margin:auto;padding:28px 20px}
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-h1{font-size:25px;margin:0}
-.muted{color:#9aa6b8;font-size:13px}
+h1{font-size:25px;margin:0} .muted{color:#9aa6b8;font-size:13px}
 .panel{background:#191f2b;border:1px solid #2b3444;border-radius:14px;padding:18px;margin-bottom:16px}
 .upload{border:1px dashed #53627a;text-align:center;padding:30px;cursor:pointer}
 .url-import{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
 .url-import input{flex:1;min-width:220px;background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:11px}
 .url-import input:focus{outline:1px solid #829cff}
 .url-hint{margin-top:8px;color:#9aa6b8;font-size:12px}
-input[type=file]{display:none}
-.btn{border:0;border-radius:9px;padding:10px 14px;background:#6b8cff;color:#fff;font-weight:650;cursor:pointer}
-.btn.secondary{background:#2b3547}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+input[type=file]{display:none}.btn{border:0;border-radius:9px;padding:10px 14px;background:#6b8cff;color:#fff;font-weight:650;cursor:pointer}
+.btn.secondary{background:#2b3547}.btn:disabled{opacity:.45;cursor:not-allowed}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
 .stat{background:#191f2b;border:1px solid #2b3444;border-radius:12px;padding:14px}
-.stat b{display:block;font-size:24px;margin-bottom:3px}
-.green{color:#62d6a1}
-.red{color:#ff7777}
-.yellow{color:#f3c76a}
+.stat b{display:block;font-size:24px;margin-bottom:3px}.green{color:#62d6a1}.red{color:#ff7777}.yellow{color:#f3c76a}
 .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:10px;min-width:220px;flex:1}
-.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}
-.tab{padding:8px 12px;border-radius:20px;background:#252e3d;color:#c8d2e1;cursor:pointer;font-size:13px;border:0}
-.tab.active{background:#6b8cff;color:white}
+.tabs{display:flex;gap:8px;margin:16px 0;flex-wrap:wrap}.tab{padding:8px 12px;border-radius:20px;background:#252e3d;color:#c8d2e1;cursor:pointer;font-size:13px;border:0}.tab.active{background:#6b8cff;color:white}
 .channel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:10px}
 .channel-card{display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:14px;background:#111722;border:1px solid #303b4e;border-radius:12px;color:#e9edf5;cursor:pointer;transition:border-color .15s,background .15s}
 .channel-card:hover{border-color:#829cff;background:#1d2635}
@@ -43,43 +31,21 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
 .detail{color:#9aa6b8;font-size:11px;margin-top:4px;overflow-wrap:anywhere}
 .cart-icon{width:34px;height:34px;border-radius:10px;background:#263247;display:grid;place-items:center;font-size:19px;flex-shrink:0}
 .channel-card.selected .cart-icon{background:#624c1c;color:#ffd36c}
-.status{font-size:12px;font-weight:650}
-.status.working{color:#62d6a1}
-.status.failed{color:#ff7777}
-.status.uncertain{color:#f3c76a}
+.status{font-size:12px;font-weight:650}.status.working{color:#62d6a1}.status.failed{color:#ff7777}.status.uncertain{color:#f3c76a}
 .fav-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .fav-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#2a261c;border:1px solid #66532c;border-radius:9px;font-size:12px}
 .fav-chip button{background:none;border:0;color:#ffd36c;cursor:pointer;font-size:16px}
-.empty{text-align:center;color:#9aa6b8;padding:35px}
-.progress{height:5px;background:#30394a;border-radius:9px;overflow:hidden;margin-top:12px}
-.bar{height:100%;width:0;background:#6b8cff;transition:width .2s}
-@media(max-width:700px){
- .stats{grid-template-columns:repeat(2,1fr)}
- th:nth-child(3),td:nth-child(3){display:none}
- .wrap{padding:18px 12px}
-}
-</style>
-</head>
-
-<body>
-<div class="wrap">
-
-<header>
- <div>
-  <h1>♡ M3U Manager</h1>
-  <div class="muted">Check streams · organise favourites · export playlists</div>
- </div>
- <span class="muted">LOCAL ONLY</span>
-</header>
-
+.status{font-size:12px;font-weight:650}.status.working{color:#62d6a1}.status.failed{color:#ff7777}.status.uncertain{color:#f3c76a}.empty{text-align:center;color:#9aa6b8;padding:35px}
+.progress{height:5px;background:#30394a;border-radius:9px;overflow:hidden;margin-top:12px}.bar{height:100%;width:0;background:#6b8cff;transition:width .2s}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr)}th:nth-child(3),td:nth-child(3){display:none}.wrap{padding:18px 12px}}
+</style></head>
+<body><div class="wrap">
+<header><div><h1>♡ M3U Manager</h1><div class="muted">Check streams · organise favourites · export playlists</div></div><span class="muted">LOCAL ONLY</span></header>
 <section class="panel upload" id="drop">
- <div style="font-size:30px">⇧</div>
- <h3 style="margin:8px 0">Upload an M3U playlist</h3>
- <div class="muted">Choose a .m3u or .m3u8 file from your computer</div>
- <br>
- <label class="btn" for="file">Choose playlist</label>
- <input id="file" type="file" accept=".m3u,.m3u8,text/plain">
- <div class="muted" id="filename" style="margin-top:12px">No playlist loaded</div>
+  <div style="font-size:30px">⇧</div><h3 style="margin:8px 0">Upload an M3U playlist</h3>
+  <div class="muted">Choose a .m3u or .m3u8 file from your computer</div><br>
+  <label class="btn" for="file">Choose playlist</label><input id="file" type="file" accept=".m3u,.m3u8,text/plain">
+  <div class="muted" id="filename" style="margin-top:12px">No playlist loaded</div>
 </section>
 
 <section class="panel">
@@ -93,6 +59,7 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
  <div class="url-hint" id="urlStatus">Your playlist URL is fetched by the app's Vercel API and parsed in your browser.</div>
 </section>
 
+
 <section class="panel">
  <strong>Connect Xtream Codes</strong>
  <div class="muted" style="margin-top:5px">Import your authorised IPTV account directly and convert its live channel list into an M3U playlist.</div>
@@ -102,7 +69,32 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
   <input id="xtPass" type="password" placeholder="Password" autocomplete="current-password">
   <button class="btn" id="xtLoad">Connect &amp; import</button>
  </div>
- <div class="url-hint" id="xtStatus">Credentials are sent to this app's Vercel API only to request your provider's playlist. They are not saved.</div>
+ <div class="url-hint" id="xtStatus">Credentials are sent to this app's Vercel API only to request your provider's M3U playlist. They are not saved.</div>
+</section>
+
+
+<section class="panel">
+ <strong>Connect Stalker Portal (MAC)</strong>
+ <div class="muted" style="margin-top:5px">Import Live TV, Movies/VOD or Series from a Stalker portal you are authorised to access.</div>
+ <div class="url-import">
+  <input id="stHost" type="url" placeholder="Portal URL (e.g. http://portal.example/stalker_portal/)" autocomplete="url">
+  <input id="stMac" type="text" placeholder="MAC address (00:1A:79:XX:XX:XX)" autocomplete="off">
+  <input id="stSerial" type="text" placeholder="Serial number (optional)" autocomplete="off">
+  <select id="stDevice" style="background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:11px">
+   <option value="MAG254">MAG254</option>
+   <option value="MAG256">MAG256</option>
+   <option value="MAG322">MAG322</option>
+   <option value="MAG324">MAG324</option>
+   <option value="MAG351">MAG351</option>
+  </select>
+  <select id="stType" style="background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:11px">
+   <option value="itv">Live TV</option>
+   <option value="vod">Movies / VOD</option>
+   <option value="series">Series</option>
+  </select>
+  <button class="btn" id="stLoad">Connect &amp; import</button>
+ </div>
+ <div class="url-hint" id="stStatus">MAC address and portal details are sent to this app's API to authenticate. They are not saved by this page.</div>
 </section>
 
 <div class="stats">
@@ -111,7 +103,6 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
  <div class="stat"><b class="red" id="failed">0</b><span class="muted">Failed</span></div>
  <div class="stat"><b class="yellow" id="favs">0</b><span class="muted">Favourites</span></div>
 </div>
-
 <section class="panel">
  <div class="controls">
   <button class="btn" id="check" disabled>Check all links</button>
@@ -125,12 +116,8 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
  <div class="progress"><div class="bar" id="bar"></div></div>
  <div class="muted" id="progressText" style="margin-top:8px">Upload a playlist to begin.</div>
 </section>
-
 <section class="panel">
- <div class="controls">
-  <input id="search" type="search" placeholder="Search channels..." disabled>
- </div>
-
+ <div class="controls"><input id="search" type="search" placeholder="Search channels..." disabled></div>
  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px">
   <label style="font-size:12px;color:#9aa6b8" for="categoryFilter">CATEGORY</label>
   <select id="categoryFilter" style="background:#10141c;border:1px solid #39465a;border-radius:9px;color:#fff;padding:10px;min-width:190px" disabled>
@@ -138,108 +125,57 @@ input[type=search]{background:#10141c;border:1px solid #39465a;border-radius:9px
   </select>
   <span class="muted" id="categorySummary">Categories appear after importing a playlist.</span>
  </div>
-
  <div class="tabs">
-  <button class="tab active" data-filter="all">All</button>
-  <button class="tab" data-filter="working">Working</button>
-  <button class="tab" data-filter="failed">Failed</button>
-  <button class="tab" data-filter="uncertain">Uncertain</button>
+  <button class="tab active" data-filter="all">All</button><button class="tab" data-filter="working">Working</button>
+  <button class="tab" data-filter="failed">Failed</button><button class="tab" data-filter="uncertain">Uncertain</button>
   <button class="tab" data-filter="favourites">Favourites ★</button>
  </div>
-
  <div class="muted" style="margin:0 0 12px">Click any channel card to add or remove it from your favourites.</div>
- <div class="channel-grid" id="rows">
-  <div class="empty">Upload an M3U file to see channels.</div>
- </div>
+ <div class="channel-grid" id="rows"><div class="empty">Upload an M3U file to see channels.</div></div>
 </section>
-
 <section class="panel">
  <div class="controls" style="justify-content:space-between">
-  <div>
-   <strong>★ Your favourites</strong>
-   <div class="muted">Selected channels ready to export</div>
-  </div>
+  <div><strong>★ Your favourites</strong><div class="muted">Selected channels ready to export</div></div>
   <span class="muted" id="favCountLabel">0 selected</span>
  </div>
- <div id="favList" class="fav-list">
-  <div class="muted">Click channels above to add them here.</div>
- </div>
+ <div id="favList" class="fav-list"><div class="muted">Click channels above to add them here.</div></div>
 </section>
-
-<div class="muted" style="text-align:center;line-height:1.6">
- Link checks test server reachability, not guaranteed playback. Some providers block automated requests or require a region, token or browser session. Favourites are saved in this browser on this device.
+<div class="muted" style="text-align:center;line-height:1.6">Link checks test server reachability, not guaranteed playback. Some providers block automated requests or require a region, token or browser session. Favourites are saved in this browser on this device.</div>
 </div>
-
-</div>
-
 <script>
 let channels=[], filter='all', favouriteSet=new Set();
-
-try {
- favouriteSet=new Set(JSON.parse(localStorage.getItem('m3u-manager-favourites')||'[]'));
-} catch(e) {
- favouriteSet=new Set();
-}
-
+try{favouriteSet=new Set(JSON.parse(localStorage.getItem('m3u-manager-favourites')||'[]'));}catch(e){favouriteSet=new Set();}
 const $=id=>document.getElementById(id);
-
 function getM3UAttribute(line, attribute) {
  const dq = line.match(new RegExp(attribute + '\\s*=\\s*"([^"]*)"', 'i'));
  if (dq) return dq[1];
-
  const sq = line.match(new RegExp(attribute + "\\s*=\\s*'([^']*)'", 'i'));
  return sq ? sq[1] : '';
 }
 
 function parseM3U(text){
- const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);
- const out=[];
- let pending=[];
-
+ const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/), out=[]; let pending=[];
  for(const raw of lines){
   const line=raw.trim();
-
   if(!line) continue;
-
-  if(line.startsWith('#')){
-   pending.push(raw);
-   continue;
-  }
-
+  if(line.startsWith('#')){pending.push(raw);continue;}
   if(/^(https?|rtmp|rtsp|udp|rtp|mms|mmsh|mmst|file):\/\//i.test(line)){
    const info=pending.find(x=>x.trim().startsWith('#EXTINF'))||'';
-
    let name='Unknown channel';
    const comma=info.indexOf(',');
-
    if(comma>=0) name=info.slice(comma+1).trim()||name;
-
    const tvg=getM3UAttribute(info,'tvg-name');
-
    if(name==='Unknown channel'&&tvg) name=tvg;
-
    const category =
     getM3UAttribute(info,'group-title') ||
     getM3UAttribute(info,'tvg-category') ||
     getM3UAttribute(info,'category') ||
     'Uncategorised';
-
    const id=out.length;
-
-   out.push({
-    id,
-    name,
-    url:line,
-    category,
-    meta:pending.slice(),
-    status:'unchecked',
-    detail:'Not checked'
-   });
-
+   out.push({id,name,url:line,category,meta:pending.slice(),status:'unchecked',detail:'Not checked'});
    pending=[];
   }
  }
-
  return out;
 }
 
@@ -247,20 +183,15 @@ function updateCategoryOptions(){
  const select=$('categoryFilter');
  const oldValue=select.value || 'all';
  const countsByCategory={};
-
  channels.forEach(c=>{
   const category=c.category || 'Uncategorised';
   countsByCategory[category]=(countsByCategory[category]||0)+1;
  });
-
  const categories=Object.keys(countsByCategory).sort((a,b)=>a.localeCompare(b));
-
  select.innerHTML='<option value="all">All categories ('+channels.length+')</option>'+
   categories.map(c=>'<option value="'+esc(c)+'">'+esc(c)+' ('+countsByCategory[c]+')</option>').join('');
-
  select.value=Object.prototype.hasOwnProperty.call(countsByCategory,oldValue)?oldValue:'all';
  select.disabled=categories.length===0;
-
  $('categorySummary').textContent=categories.length
   ? categories.length+' categories detected from playlist metadata'
   : 'No category metadata found in this playlist.';
@@ -275,24 +206,15 @@ function counts(){
 
 function render(){
  counts();
-
  const q=$('search').value.toLowerCase();
  const selectedCategory=$('categoryFilter').value || 'all';
-
  const shown=channels.filter(c=>{
-  const matchesTab=filter==='all'||
-   (filter==='favourites'?favouriteSet.has(c.id):c.status===filter);
-
-  const matchesCategory=selectedCategory==='all'||
-   (c.category||'Uncategorised')===selectedCategory;
-
+  const matchesTab=filter==='all'||(filter==='favourites'?favouriteSet.has(c.id):c.status===filter);
+  const matchesCategory=selectedCategory==='all'||(c.category||'Uncategorised')===selectedCategory;
   const matchesSearch=(c.name+' '+c.url+' '+(c.category||'')).toLowerCase().includes(q);
-
   return matchesTab&&matchesCategory&&matchesSearch;
  });
-
- $('rows').innerHTML=shown.length?shown.map(c=>`
-  <button class="channel-card ${favouriteSet.has(c.id)?'selected':''}" data-channel="${c.id}" aria-pressed="${favouriteSet.has(c.id)}">
+ $('rows').innerHTML=shown.length?shown.map(c=>`<button class="channel-card ${favouriteSet.has(c.id)?'selected':''}" data-channel="${c.id}" aria-pressed="${favouriteSet.has(c.id)}">
    <span class="cart-icon">${favouriteSet.has(c.id)?'✓':'＋'}</span>
    <span class="channel-info">
     <span class="name">${esc(c.name)}</span>
@@ -301,81 +223,41 @@ function render(){
    </span>
    <span style="color:${favouriteSet.has(c.id)?'#ffd36c':'#9aa6b8'};font-size:12px">${favouriteSet.has(c.id)?'Added':'Add'}</span>
   </button>`).join(''):'<div class="empty">No channels match this filter.</div>';
-
  document.querySelectorAll('[data-channel]').forEach(b=>b.onclick=()=>{
   const id=Number(b.dataset.channel);
   favouriteSet.has(id)?favouriteSet.delete(id):favouriteSet.add(id);
-  saveFavourites();
-  render();
+  saveFavourites();render();
  });
-
  const favs=channels.filter(c=>favouriteSet.has(c.id));
-
  $('favCountLabel').textContent=favs.length+' selected';
-
- $('favList').innerHTML=favs.length?favs.map(c=>`
-  <span class="fav-chip">${esc(c.name)}
-   <span class="muted">(${esc(c.category||'Uncategorised')})</span>
-   <button data-remove="${c.id}" title="Remove favourite">×</button>
-  </span>`).join(''):'<div class="muted">Click channels above to add them here.</div>';
-
+ $('favList').innerHTML=favs.length?favs.map(c=>`<span class="fav-chip">${esc(c.name)} <span class="muted">(${esc(c.category||'Uncategorised')})</span> <button data-remove="${c.id}" title="Remove favourite">×</button></span>`).join(''):'<div class="muted">Click channels above to add them here.</div>';
  document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{
-  favouriteSet.delete(Number(b.dataset.remove));
-  saveFavourites();
-  render();
+  favouriteSet.delete(Number(b.dataset.remove));saveFavourites();render();
  });
-
  $('exportFav').disabled=!favs.length;
 }
 
-function saveFavourites(){
- try {
-  localStorage.setItem('m3u-manager-favourites',JSON.stringify([...favouriteSet]));
- } catch(e){}
-}
-
-function esc(s){
- return String(s).replace(/[&<>"']/g,c=>({
-  '&':'&amp;',
-  '<':'&lt;',
-  '>':'&gt;',
-  '"':'&quot;',
-  "'":'&#39;'
- }[c]));
-}
+function saveFavourites(){try{localStorage.setItem('m3u-manager-favourites',JSON.stringify([...favouriteSet]));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 function loadPlaylistContent(text, displayName) {
  if(!text || !text.trim()) throw new Error('The playlist is empty.');
-
  const normalized = text.replace(/^\uFEFF/, '').trimStart();
-
- if(!normalized.startsWith('#EXTM3U'))
-  throw new Error('The response is not a valid M3U playlist (missing #EXTM3U header).');
-
+ if(!normalized.startsWith('#EXTM3U')) throw new Error('The response is not a valid M3U playlist (missing #EXTM3U header).');
  const parsed = parseM3U(text);
-
- if(!parsed.length)
-  throw new Error('The playlist header was found, but no supported stream URLs were detected.');
-
+ if(!parsed.length) throw new Error('The playlist header was found, but no supported stream URLs were detected.');
  channels = parsed;
-
  updateCategoryOptions();
-
  favouriteSet = new Set([...favouriteSet].filter(id => id < channels.length));
-
  $('filename').textContent = displayName + ' · ' + channels.length + ' channel entries';
-
  $('check').disabled = false;
  $('checkCategory').disabled = $('categoryFilter').value === 'all';
  $('exportCategoryWorking').disabled = $('categoryFilter').value === 'all';
-
  $('search').disabled = false;
  $('exportWorking').disabled = false;
  $('exportAll').disabled = false;
  $('exportCsv').disabled = false;
-
  $('progressText').textContent = 'Playlist loaded. Click any channel card to add it to favourites, or check the links.';
-
  render();
 }
 
@@ -392,7 +274,6 @@ async function importPlaylistFromURL() {
 
  button.disabled = true;
  $('loadHindi').disabled = true;
-
  $('urlStatus').textContent = 'Fetching playlist…';
  $('filename').textContent = 'Loading playlist from URL…';
  $('progressText').textContent = 'Downloading playlist through Vercel…';
@@ -406,23 +287,16 @@ async function importPlaylistFromURL() {
 
   const data = await response.json();
 
-  if(!response.ok)
-   throw new Error(data.error || 'Import failed (HTTP ' + response.status + ').');
-
-  if(!data.content)
-   throw new Error('The server returned an empty playlist.');
+  if(!response.ok) throw new Error(data.error || 'Import failed (HTTP ' + response.status + ').');
+  if(!data.content) throw new Error('The server returned an empty playlist.');
 
   loadPlaylistContent(data.content, data.name || 'Remote playlist');
-
   $('urlStatus').textContent = 'Successfully imported ' + channels.length + ' channels from the URL.';
-
  } catch(error) {
   console.error('URL import error:', error);
-
   $('urlStatus').textContent = 'Could not import playlist: ' + error.message;
   $('filename').textContent = 'URL import failed';
   $('progressText').textContent = error.message;
-
  } finally {
   button.disabled = false;
   $('loadHindi').disabled = false;
@@ -430,144 +304,87 @@ async function importPlaylistFromURL() {
 }
 
 $('loadUrl').addEventListener('click', importPlaylistFromURL);
-
 $('playlistUrl').addEventListener('keydown', e => {
  if(e.key === 'Enter') importPlaylistFromURL();
 });
-
 $('loadHindi').addEventListener('click', () => {
  $('playlistUrl').value = 'https://iptv-org.github.io/iptv/languages/hin.m3u';
  importPlaylistFromURL();
 });
 
+
 async function xtreamRequest(host,username,password,action,categoryId) {
  const response=await fetch('/api/xtream',{
   method:'POST',
   headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({
-   host,
-   username,
-   password,
-   action,
-   category_id:categoryId
-  })
+  body:JSON.stringify({host,username,password,action,category_id:categoryId})
  });
-
  const data=await response.json();
-
- if(!response.ok)
-  throw new Error(data.error||'Xtream API request failed (HTTP '+response.status+').');
-
+ if(!response.ok) throw new Error(data.error||'Xtream API request failed (HTTP '+response.status+').');
  return data;
 }
-
 async function importXtream() {
  const host=$('xtHost').value.trim();
  const username=$('xtUser').value.trim();
  const password=$('xtPass').value;
  const button=$('xtLoad');
-
  if(!host || !username || !password) {
   $('xtStatus').textContent='Enter the server URL, username and password.';
   return;
  }
-
  button.disabled=true;
-
  try {
   $('xtStatus').textContent='Connecting to Xtream API…';
-
   const categoryData=await xtreamRequest(host,username,password,'categories');
-
   const categories=Array.isArray(categoryData.categories)?categoryData.categories:[];
-
-  if(!categories.length)
-   throw new Error('The provider returned no live-TV categories. Check that your account includes live TV.');
-
+  if(!categories.length) throw new Error('The provider returned no live-TV categories. Check that your account includes live TV.');
   let entries=[];
-
   for(let i=0;i<categories.length;i++){
    const cat=categories[i];
-
    $('xtStatus').textContent='Importing category '+(i+1)+' of '+categories.length+': '+(cat.category_name||'Other')+'…';
-
    const streamData=await xtreamRequest(host,username,password,'streams',cat.category_id);
-
    const streams=Array.isArray(streamData.streams)?streamData.streams:[];
-
    for(const s of streams){
     if(!s || s.stream_id==null) continue;
-
     const name=String(s.name||('Channel '+s.stream_id)).replace(/[\r\n,]/g,' ').trim();
     const group=String(cat.category_name||'Uncategorised').replace(/["\r\n]/g,' ').trim();
     const logo=String(s.stream_icon||'').replace(/["\r\n]/g,'');
     const epg=String(s.epg_channel_id||'').replace(/["\r\n]/g,'');
     const ext=String(s.container_extension||'ts').replace(/[^a-z0-9]/gi,'')||'ts';
-
-    const streamUrl=host.replace(/\/+$/,'')+'/live/'+
-     encodeURIComponent(username)+'/'+
-     encodeURIComponent(password)+'/'+
-     encodeURIComponent(s.stream_id)+'.'+ext;
-
-    entries.push(
-     '#EXTINF:-1 tvg-id="'+epg+'" tvg-name="'+name.replace(/"/g,'')+
-     '" tvg-logo="'+logo+'" group-title="'+group+'",'+name+'\n'+streamUrl
-    );
+    const streamUrl=host.replace(/\/+$/,'')+'/live/'+encodeURIComponent(username)+'/'+encodeURIComponent(password)+'/'+encodeURIComponent(s.stream_id)+'.'+ext;
+    entries.push('#EXTINF:-1 tvg-id="'+epg+'" tvg-name="'+name.replace(/"/g,'')+'" tvg-logo="'+logo+'" group-title="'+group+'",'+name+'\n'+streamUrl);
    }
   }
-
-  if(!entries.length)
-   throw new Error('No live channels were returned for the available categories.');
-
+  if(!entries.length) throw new Error('No live channels were returned for the available categories.');
   const playlist='#EXTM3U\n'+entries.join('\n')+'\n';
-
   loadPlaylistContent(playlist,'Xtream Codes · '+entries.length+' live channels');
-
   $('xtStatus').textContent='Imported '+entries.length+' live channels across '+categories.length+' categories. Export all M3U to save the playlist.';
-
   $('playlistUrl').value='';
-
  } catch(err) {
   console.error('Xtream import error:',err);
   $('xtStatus').textContent='Could not connect: '+err.message;
-
  } finally {
   button.disabled=false;
  }
 }
-
 $('xtLoad').addEventListener('click',importXtream);
-
-['xtHost','xtUser','xtPass'].forEach(id=>
- $(id).addEventListener('keydown',e=>{
-  if(e.key==='Enter') importXtream();
- })
-);
+['xtHost','xtUser','xtPass'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')importXtream();}));
 
 $('file').addEventListener('change', async e=>{
  const f=e.target.files && e.target.files[0];
-
  if(!f) return;
-
  $('filename').textContent='Reading '+f.name+'…';
  $('progressText').textContent='Importing playlist…';
-
  try {
   const text=await f.text();
-
   loadPlaylistContent(text, f.name);
-
   $('urlStatus').textContent = 'Local playlist loaded: ' + f.name;
-
  } catch(err) {
   console.error('M3U file import error:', err);
-
   channels=[];
   render();
-
   $('filename').textContent=f.name+' · Import failed';
   $('progressText').textContent='Upload error: '+err.message;
-
   $('check').disabled=true;
   $('checkCategory').disabled=true;
   $('exportCategoryWorking').disabled=true;
@@ -575,67 +392,28 @@ $('file').addEventListener('change', async e=>{
   $('exportWorking').disabled=true;
   $('exportFav').disabled=true;
   $('exportCsv').disabled=true;
-
  } finally {
   e.target.value='';
  }
 });
-
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
- document.querySelector('.tab.active').classList.remove('active');
- b.classList.add('active');
- filter=b.dataset.filter;
- render();
-});
-
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelector('.tab.active').classList.remove('active');b.classList.add('active');filter=b.dataset.filter;render();});
 $('search').oninput=render;
-
 $('categoryFilter').onchange=()=>{
  render();
-
  const specific=$('categoryFilter').value!=='all';
-
  $('checkCategory').disabled=!specific;
  $('exportCategoryWorking').disabled=!specific;
 };
-
 const drop=$('drop');
-
-['dragenter','dragover'].forEach(evt=>
- drop.addEventListener(evt,e=>{
-  e.preventDefault();
-  drop.style.borderColor='#829cff';
- })
-);
-
-['dragleave','drop'].forEach(evt=>
- drop.addEventListener(evt,e=>{
-  e.preventDefault();
-  drop.style.borderColor='#53627a';
- })
-);
-
-drop.addEventListener('drop',e=>{
- const f=e.dataTransfer.files && e.dataTransfer.files[0];
-
- if(f){
-  $('file').files=e.dataTransfer.files;
-  $('file').dispatchEvent(new Event('change'));
- }
-});
-
-/* CATEGORY-SPECIFIC LINK CHECKER */
-
+['dragenter','dragover'].forEach(evt=>drop.addEventListener(evt,e=>{e.preventDefault();drop.style.borderColor='#829cff';}));
+['dragleave','drop'].forEach(evt=>drop.addEventListener(evt,e=>{e.preventDefault();drop.style.borderColor='#53627a';}));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files && e.dataTransfer.files[0];if(f){$('file').files=e.dataTransfer.files;$('file').dispatchEvent(new Event('change'));}});
 async function runLinkCheck(selectedCategory = null) {
-
  const selectedChannels = selectedCategory === null
   ? channels
-  : channels.filter(c =>
-     (c.category || 'Uncategorised') === selectedCategory
-    );
+  : channels.filter(c => (c.category || 'Uncategorised') === selectedCategory);
 
  const urls = [...new Set(selectedChannels.map(c => c.url))];
-
  if (!urls.length) {
   $('progressText').textContent = 'No channels found to check.';
   return;
@@ -643,180 +421,170 @@ async function runLinkCheck(selectedCategory = null) {
 
  $('check').disabled = true;
  $('checkCategory').disabled = true;
-
  $('progressText').textContent =
   `Checking ${urls.length} unique links${selectedCategory ? ' in ' + selectedCategory : ''}…`;
-
  $('bar').style.width = '0%';
 
  let done = 0;
  const results = {};
 
  try {
-
   for (let i = 0; i < urls.length; i += 60) {
-
    const batch = urls.slice(i, i + 60);
 
    try {
-
     const response = await fetch('/api/check', {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
      body: JSON.stringify({ urls: batch })
     });
-
     const data = await response.json();
-
-    if (!response.ok)
-     throw new Error(data.error || `HTTP ${response.status}`);
-
+    if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
     Object.assign(results, data);
-
    } catch (error) {
-
     batch.forEach(url => {
      results[url] = {
       status: 'uncertain',
       detail: 'Checker request failed: ' + error.message
      };
     });
-
    }
 
    done += batch.length;
-
    $('bar').style.width = (done / urls.length * 100) + '%';
-
-   $('progressText').textContent =
-    `Checked ${done} of ${urls.length} unique links…`;
+   $('progressText').textContent = `Checked ${done} of ${urls.length} unique links…`;
   }
 
   // Update only the channels included in this check.
   selectedChannels.forEach(channel => {
-
    const result = results[channel.url] || {
     status: 'uncertain',
     detail: 'No result returned'
    };
-
    channel.status = result.status;
    channel.detail = result.detail;
-
   });
 
-  const workingCount =
-   selectedChannels.filter(c => c.status === 'working').length;
-
-  const failedCount =
-   selectedChannels.filter(c => c.status === 'failed').length;
-
-  const uncertainCount =
-   selectedChannels.filter(c => c.status === 'uncertain').length;
+  const workingCount = selectedChannels.filter(c => c.status === 'working').length;
+  const failedCount = selectedChannels.filter(c => c.status === 'failed').length;
+  const uncertainCount = selectedChannels.filter(c => c.status === 'uncertain').length;
 
   $('progressText').textContent =
    `Check complete: ${workingCount} Working · ${failedCount} Failed · ${uncertainCount} Uncertain` +
    (selectedCategory ? ` · Category: ${selectedCategory}` : ' · All categories');
 
   render();
-
  } finally {
-
   $('check').disabled = false;
-
-  $('checkCategory').disabled =
-   $('categoryFilter').value === 'all';
-
+  $('checkCategory').disabled = $('categoryFilter').value === 'all';
  }
 }
 
-/* CHECK ALL CHANNELS */
-
 $('check').onclick = () => runLinkCheck(null);
 
-/* CHECK ONLY SELECTED CATEGORY */
-
 $('checkCategory').onclick = () => {
-
  const category = $('categoryFilter').value;
-
  if (category === 'all') {
   $('progressText').textContent = 'Select a specific category first.';
   return;
  }
-
  runLinkCheck(category);
 };
 
-/* M3U EXPORT */
 
-function makeM3U(items){
- return '#EXTM3U\n'+
-  items.map(c=>[...c.meta,c.url].join('\n')).join('\n')+
-  '\n';
+async function stalkerRequest(payload) {
+ const response=await fetch('/api/stalker',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify(payload)
+ });
+ const data=await response.json();
+ if(!response.ok) throw new Error(data.error||'Stalker API request failed (HTTP '+response.status+').');
+ return data;
 }
 
-function download(name,content,type='audio/x-mpegurl'){
- const blob=new Blob([content],{type});
- const a=document.createElement('a');
-
- a.href=URL.createObjectURL(blob);
- a.download=name;
- a.click();
-
- URL.revokeObjectURL(a.href);
+function stalkerCleanName(value){
+ return String(value||'').replace(/[\r\n,]/g,' ').trim();
 }
 
-$('exportAll').onclick=()=>{
- download('xtream-converted.m3u',makeM3U(channels));
-};
+async function importStalker() {
+ const portal=$('stHost').value.trim();
+ const mac=$('stMac').value.trim().toUpperCase();
+ const serial=$('stSerial').value.trim();
+ const device=$('stDevice').value;
+ const type=$('stType').value;
+ const button=$('stLoad');
 
-/* EXPORT WORKING LINKS FROM SELECTED CATEGORY */
+ if(!portal || !mac){
+  $('stStatus').textContent='Enter the portal URL and authorised MAC address.';
+  return;
+ }
+ if(!/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/.test(mac)){
+  $('stStatus').textContent='MAC address format should be 00:1A:79:XX:XX:XX.';
+  return;
+ }
 
-$('exportCategoryWorking').onclick=()=>{
+ button.disabled=true;
+ try{
+  $('stStatus').textContent='Connecting to Stalker Portal…';
+  const base={portal,mac,serial,device};
+  const hs=await stalkerRequest({...base,action:'handshake'});
+  const token=hs.token;
+  if(!token) throw new Error('Portal did not return an authentication token. Check portal URL and MAC authorisation.');
 
- const category=$('categoryFilter').value;
+  $('stStatus').textContent='Authenticated. Loading '+(type==='itv'?'Live TV':type==='vod'?'Movies / VOD':'Series')+' categories…';
+  const catData=await stalkerRequest({...base,token,action:'categories',content_type:type});
+  const categories=Array.isArray(catData.categories)?catData.categories:[];
+  if(!categories.length) throw new Error('No categories were returned for this content type.');
 
- if(category==='all') return;
+  let entries=[];
+  let imported=0;
+  for(let i=0;i<categories.length;i++){
+   const cat=categories[i];
+   const catId=String(cat.id??cat.category_id??'');
+   $('stStatus').textContent='Loading '+(cat.title||cat.name||'category')+' ('+(i+1)+'/'+categories.length+')…';
+   const itemData=await stalkerRequest({...base,token,action:'items',content_type:type,category_id:catId,page:1});
+   const items=Array.isArray(itemData.items)?itemData.items:[];
+   for(const item of items){
+    const cmd=item.cmd||item.url||item.stream_url||'';
+    let streamUrl=String(cmd).replace(/^ffmpeg\s+/i,'').trim();
+    if(streamUrl && !/^https?:\/\//i.test(streamUrl)){
+     try{
+      const linked=await stalkerRequest({...base,token,action:'link',content_type:type,cmd:streamUrl});
+      streamUrl=String(linked.url||'').replace(/^ffmpeg\s+/i,'').trim();
+     }catch(e){ continue; }
+    }
+    if(!streamUrl || !/^https?:\/\//i.test(streamUrl)) continue;
+    const name=stalkerCleanName(item.name||item.title||item.o_name||'Stalker item');
+    const group=stalkerCleanName(cat.title||cat.name||'Uncategorised');
+    const logo=String(item.screenshot_uri||item.logo||item.cover||item.pic||'').replace(/["\r\n]/g,'');
+    const id=String(item.id||item.movie_id||'');
+    const meta='#EXTINF:-1 tvg-id="'+id+'" tvg-name="'+name.replace(/"/g,'')+'" tvg-logo="'+logo+'" group-title="'+group.replace(/"/g,'')+'",'+name;
+    entries.push(meta+'\n'+streamUrl);
+    imported++;
+   }
+  }
 
- const items=channels.filter(c=>
-  c.category===category && c.status==='working'
- );
+  if(!entries.length) throw new Error('Categories loaded, but no directly playable stream URLs were returned. This portal may require a provider-specific link/series endpoint.');
 
- download(
-  'working-'+category.replace(/[^a-z0-9_-]+/gi,'_')+'.m3u',
-  makeM3U(items)
- );
-};
+  const playlist='#EXTM3U\n'+entries.join('\n')+'\n';
+  loadPlaylistContent(playlist,'Stalker '+type.toUpperCase()+' · '+imported+' items');
+  $('stStatus').textContent='Imported '+imported+' playable '+(type==='itv'?'channels':type==='vod'?'movies':'series/episodes')+' from '+categories.length+' categories. Use the existing category checker and export tools.';
+ }catch(err){
+  console.error('Stalker import error:',err);
+  $('stStatus').textContent='Could not import: '+err.message;
+ }finally{
+  button.disabled=false;
+ }
+}
+$('stLoad').addEventListener('click',importStalker);
+['stHost','stMac','stSerial'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')importStalker();}));
 
-$('exportFav').onclick=()=>{
- download(
-  'favourites.m3u',
-  makeM3U(channels.filter(c=>favouriteSet.has(c.id)))
- );
-};
-
-$('exportWorking').onclick=()=>{
- download(
-  'working-streams.m3u',
-  makeM3U(channels.filter(c=>c.status==='working'))
- );
-};
-
-$('exportCsv').onclick=()=>{
-
- const rows=[
-  ['Channel','Status','Detail','URL'],
-  ...channels.map(c=>[c.name,c.status,c.detail,c.url])
- ];
-
- const csv=rows.map(r=>
-  r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')
- ).join('\r\n');
-
- download('m3u-channels.csv',csv,'text/csv');
-};
-
-</script>
-</body>
-</html>
+function makeM3U(items){return '#EXTM3U\n'+items.map(c=>[...c.meta,c.url].join('\n')).join('\n')+'\n';}
+function download(name,content,type='audio/x-mpegurl'){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+$('exportAll').onclick=()=>download('xtream-converted.m3u',makeM3U(channels));
+$('exportCategoryWorking').onclick=()=>{const category=$('categoryFilter').value;if(category==='all')return;const items=channels.filter(c=>c.category===category&&c.status==='working');download('working-'+category.replace(/[^a-z0-9_-]+/gi,'_')+'.m3u',makeM3U(items));};
+$('exportFav').onclick=()=>download('favourites.m3u',makeM3U(channels.filter(c=>favouriteSet.has(c.id))));
+$('exportWorking').onclick=()=>download('working-streams.m3u',makeM3U(channels.filter(c=>c.status==='working')));
+$('exportCsv').onclick=()=>{const rows=[['Channel','Status','Detail','URL'],...channels.map(c=>[c.name,c.status,c.detail,c.url])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');download('m3u-channels.csv',csv,'text/csv');};
+</script></body></html>
