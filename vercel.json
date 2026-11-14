@@ -9,6 +9,9 @@
     },
     "api/xtream.py": {
       "maxDuration": 60
+    },
+    "api/stalker.py": {
+      "maxDuration": 60
     }
   }
 }
